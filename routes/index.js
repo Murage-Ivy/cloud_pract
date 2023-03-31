@@ -1,4 +1,5 @@
 const express = require('express');
+const uuid = require('uuid').v4
 const {
     Router
 } = require('express');
@@ -22,10 +23,20 @@ app.get('/', (_, res) => {
 })
 
 app.post('/upload', upload.array("file"), async (req, res) => {
+  
+   
 
     const file = req.files[0]
 
     console.log(file)
+
+    const params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: `${uuid()}-${file.originalname}`,
+        Body: file.buffer,
+      };
+
+      console.log(params)
 
     if (!file) {
         return res.status(400).send("No file uploaded")
@@ -39,6 +50,7 @@ app.post('/upload', upload.array("file"), async (req, res) => {
             status: "success",
             result
         })
+        
     } catch (err) {
         res.status(500).json({
             errors: {
